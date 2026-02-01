@@ -76,7 +76,7 @@ code:not([class]) {
   </a>
 </p>
 
-**TLDR:** Finetuning many agents end-to-end offers a workaround to **continual learning** since different agents can specialize without catastrophic forgetting. Yet doing so is hard due to **credit assignment** and **sample efficiency**. Using AI feedback as **per-action process rewards**, we demonstrate this approach is feasible and led to real gains on different systems & tasks.
+**TLDR:** Finetuning many agents end-to-end offers a workaround to **continual learning** since different agents can specialize without catastrophic forgetting. Yet this is eaiser said than done due to **credit assignment** and **sample efficiency** problems. Using AI feedback as **per-action process rewards**, we demonstrate the approach is feasible and led to real gains across different systems & tasks.
 
 <img src="figures/scaling_hand.jpg" alt="Multiagent scaling" width="100%">
 
@@ -86,9 +86,9 @@ code:not([class]) {
 
 ## Why bother with multiple agents?
 
-Here's something frustrating about training large models: teach them to code better, and their poetry often gets worse. Fine-tune for reasoning, and creative writing suffers. All skills compete for the same parameters—the classic catastrophic forgetting problem.
+Fine-tuning a single model on one capability often degrades others. Improve coding performance and mathematical reasoning may suffer. This is catastrophic forgetting: all skills compete for the same parameters.
 
-Multiagent systems offer an elegant escape. When you split a task across three specialized agents—each with its own weights—improving one agent's coding can't possibly hurt another's reasoning. They're literally different models.
+Multiagent systems avoid this by construction. When each agent has separate weights, improving one agent's capabilities cannot interfere with another's. The parameters are literally disjoint.
 
 ```
 Single Model:      [All params] → Output
@@ -100,15 +100,15 @@ Multiagent:        [Agent 1: Solver] ─┐
                    ↑ separate params, no interference
 ```
 
-The agents don't need to be large. Three 4B-parameter specialists working together give you 12B total parameters, each laser-focused on what it does best. In our MathChat system:
+The individual agents need not be large. Three 4B-parameter specialists provide 12B total parameters, each dedicated to a specific function. Our MathChat system implements this with three agents:
 
-- The `ProblemSolver` drafts mathematical reasoning
-- The `CodeExecutor` writes and debugs Python to verify solutions
-- The `Verifier` extracts and formats the final answer
+- `ProblemSolver`: drafts step-by-step mathematical reasoning
+- `CodeExecutor`: writes and runs Python to verify computations
+- `Verifier`: synthesizes results and extracts the final answer
 
-We found this trio can outperform a single 4B model trying to do everything. You also get a nice debugging bonus: when something breaks, you can see exactly *which* agent broke it.
+This configuration outperforms a single 4B model on competition math problems. It also provides interpretability: failures can be traced to specific agents rather than opaque model internals.
 
-This isn't just our intuition. Recent work from Kim et al.[^1] found that reasoning models trained purely for accuracy spontaneously develop diverse internal "personas." Multiagent systems make this specialization explicit—and trainable.
+Recent work supports this approach. Kim et al.[^1] found that reasoning models trained purely for accuracy spontaneously develop diverse internal "personas." Multiagent architectures make this specialization explicit and independently trainable.
 
 ### But you can't just prompt your way there
 
