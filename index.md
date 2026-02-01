@@ -76,19 +76,19 @@ code:not([class]) {
   </a>
 </p>
 
-**TLDR:** Finetuning many agents end-to-end offers a workaround to **continual learning** since different agents can specialize without catastrophic forgetting. Yet this is eaiser said than done due to **credit assignment** and **sample efficiency** problems. Using AI feedback as **per-action process rewards**, we demonstrate the approach is feasible and led to real gains across different systems & tasks.
+**TLDR:** Finetuning many agents end-to-end offers a workaround to **continual learning** since different agents can specialize without catastrophic forgetting. Yet this is eaiser said than done due to **credit assignment** and **sample efficiency** problems. Using AI feedback as **per-action process rewards**, we show how this approach led to real gains across different systems & tasks.
 
 <img src="figures/scaling_hand.jpg" alt="Multiagent scaling" width="100%">
 
-*Multiagent systems sidestep catastrophic forgetting the same way mixture-of-experts does—by giving different skills different parameters.*
+*Multiagent systems sidestep catastrophic forgetting the same way mixture-of-experts does—by allowing different tasks to occupy different parameters.*
 
 ---
 
-## Why bother with multiple agents?
+## Why bother training multiple agents?
 
-Fine-tuning a single model on one capability often degrades others. Improve coding performance and mathematical reasoning may suffer. This is catastrophic forgetting: all skills compete for the same parameters.
+Fine-tuning a single model on one capability often degrades others. Optimize for instruction following and open-ended generation becomes more rigid; train extensively on one language and performance on others may drop. This is catastrophic forgetting: all skills compete for the same parameters.
 
-Multiagent systems avoid this by construction. When each agent has separate weights, improving one agent's capabilities cannot interfere with another's. The parameters are literally disjoint.
+Mixture-of-experts (MoE) architectures address this by routing different inputs to different parameter subsets. This insight now underpins most frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5 all use MoE designs. Multiagent systems apply the same principle at a higher level: each agent has entirely separate weights, so improving one agent's capabilities cannot interfere with another's.
 
 ```
 Single Model:      [All params] → Output
