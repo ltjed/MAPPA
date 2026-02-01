@@ -62,18 +62,21 @@ code:not([class]) {
 }
 </style>
 
-# Teaching AI Agents to Actually Work Together
+# MAPPA: Scaling Multiagent Systems with Process Rewards
 
 <p align="center">
-  <a href="https://anonymous.4open.science/r/ANONYMOUS">
+  <a href="https://github.com/freephdlabor/mappa">
     <img src="https://img.shields.io/badge/GitHub-Repository-black?style=for-the-badge&logo=github" alt="GitHub Repository">
+  </a>
+  <a href="https://github.com/freephdlabor/mappa">
+    <img src="https://img.shields.io/github/stars/freephdlabor/mappa?style=for-the-badge" alt="GitHub Stars">
   </a>
   <a href="https://arxiv.org/abs/XXXX.XXXXX">
     <img src="https://img.shields.io/badge/Paper-arXiv-blue?style=for-the-badge&logo=arxiv" alt="arXiv Paper">
   </a>
 </p>
 
-*We gave multiagent systems a coach—and discovered they can learn teamwork.*
+**TLDR:** We gave each agent in a multiagent system its own AI coach that watches every move and assigns blame when things go wrong—turning expensive failed runs into dense training signal and unlocking end-to-end finetuning of agent teams for the first time.
 
 ---
 
