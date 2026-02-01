@@ -66,38 +66,21 @@ code:not([class]) {
 
 <p align="center">
   <a href="https://github.com/freephdlabor/mappa">
-    <img src="https://img.shields.io/badge/try_mappa_now-black?style=for-the-badge&logo=github" alt="Try MAPPA Now">
+    <img src="https://img.shields.io/badge/try_mappa_now-black?style=for-the-badge&logo=github" alt="Try MAPPA Now!">
   </a>
   <a href="https://github.com/freephdlabor/mappa">
-    <img src="https://img.shields.io/github/stars/freephdlabor/mappa?style=for-the-badge&color=gold" alt="GitHub Stars">
+    <img src="https://img.shields.io/github/stars/freephdlabor/mappa?style=for-the-badge&color=gold" alt="Stars">
   </a>
   <a href="https://arxiv.org/abs/XXXX.XXXXX">
-    <img src="https://img.shields.io/badge/Paper-arXiv-B31B1B?style=for-the-badge&logo=arxiv" alt="arXiv Paper">
+    <img src="https://img.shields.io/badge/Paper-arXiv-B31B1B?style=for-the-badge&logo=arxiv" alt="arXiv">
   </a>
 </p>
 
-**TLDR:** End-to-end finetuning of multiagent systems may offer a path to continual learning—different agents can specialize without catastrophic forgetting. Yet doing so remains challenging due to credit assignment and sample efficiency. By leveraging AI feedback as per-action process rewards, we demonstrate substantial improvements on long-horizon tasks including multi-step data science pipelines.
-
----
-
-When a three-agent pipeline fails, who's to blame? The planner who gave bad directions? The coder who introduced a bug? Or the synthesizer who misread the output?
-
-This turns out to be a surprisingly hard question. Traditional training gives you a single bit of feedback—success or failure—after the whole team finishes. Everyone gets the same grade, regardless of who actually dropped the ball.
-
-We found a better way: give each agent its own coach.
+**TLDR:** Finetuning many agents end-to-end offers a workaround to **continual learning** since different agents can specialize without catastrophic forgetting. Yet doing so is hard due to **credit assignment** and **sample efficiency**. Using AI feedback as **per-action process rewards**, we demonstrate this approach is feasible and led to real gains on different systems & tasks.
 
 <img src="figures/scaling_hand.jpg" alt="Multiagent scaling" width="100%">
 
 *Multiagent systems sidestep catastrophic forgetting the same way mixture-of-experts does—by giving different skills different parameters.*
-
-| Domain | What we tested | How much it improved |
-|--------|------|-------------|
-| MathChat | Competition math (AIME) | **+5 to +17 percentage points** |
-| MathChat | Competition math (AMC) | **+8 to +17 percentage points** |
-| DSBench | Classification pipelines | **+12pp** success, **+23%** accuracy, **+38%** F1 |
-| DSBench | Regression pipelines | **+25pp** success, **-41%** RMSE |
-
-We call this approach **MAPPA**: training **M**ulti**A**gent systems with **P**er-action **P**rocess rewards from **A**I feedback.
 
 ---
 
@@ -151,6 +134,23 @@ The problem is subtle but deadly. Synthetic inputs cover only a tiny fraction of
 End-to-end rollouts sample from the *actual* distribution of intermediate states. Each agent sees exactly what it will encounter in production.
 
 The cost? You have to roll out the entire pipeline for each training sample.
+
+---
+
+When a three-agent pipeline fails, who's to blame? The planner who gave bad directions? The coder who introduced a bug? Or the synthesizer who misread the output?
+
+This turns out to be a surprisingly hard question. Traditional training gives you a single bit of feedback—success or failure—after the whole team finishes. Everyone gets the same grade, regardless of who actually dropped the ball.
+
+We found a better way: give each agent its own coach.
+
+| Domain | What we tested | How much it improved |
+|--------|------|-------------|
+| MathChat | Competition math (AIME) | **+5 to +17 percentage points** |
+| MathChat | Competition math (AMC) | **+8 to +17 percentage points** |
+| DSBench | Classification pipelines | **+12pp** success, **+23%** accuracy, **+38%** F1 |
+| DSBench | Regression pipelines | **+25pp** success, **-41%** RMSE |
+
+We call this approach **MAPPA**: training **M**ulti**A**gent systems with **P**er-action **P**rocess rewards from **A**I feedback.
 
 ---
 
