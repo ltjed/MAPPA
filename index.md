@@ -66,13 +66,13 @@ code:not([class]) {
 
 <p align="center">
   <a href="https://github.com/freephdlabor/mappa">
-    <img src="https://img.shields.io/badge/GitHub-Try_MAPPA-black?style=for-the-badge&logo=github" alt="Try MAPPA">
+    <img src="https://img.shields.io/badge/GitHub-Try_MAPPA-black?style=flat-square&logo=github" alt="Try MAPPA">
   </a>
   <a href="https://github.com/freephdlabor/mappa">
-    <img src="https://img.shields.io/github/stars/freephdlabor/mappa?style=for-the-badge&color=gold" alt="GitHub Stars">
+    <img src="https://img.shields.io/github/stars/freephdlabor/mappa?style=flat-square&color=gold" alt="GitHub Stars">
   </a>
   <a href="https://arxiv.org/abs/XXXX.XXXXX">
-    <img src="https://img.shields.io/badge/Paper-arXiv-B31B1B?style=for-the-badge&logo=arxiv" alt="arXiv Paper">
+    <img src="https://img.shields.io/badge/Paper-arXiv-B31B1B?style=flat-square&logo=arxiv" alt="arXiv Paper">
   </a>
 </p>
 
