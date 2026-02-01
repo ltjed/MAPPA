@@ -1,0 +1,19 @@
+title: MAPPA
+description: Teaching AI Agents to Actually Work Together - Training multiagent systems with per-action process rewards from AI feedback
+
+# GitHub Pages project site config
+baseurl: "/mappa"
+url: "https://freephdlabor.github.io"
+
+# Markdown processing
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  auto_ids: true
+  syntax_highlighter: rouge
+
+# Exclude from processing
+exclude:
+  - .gitignore
+  - README.md
