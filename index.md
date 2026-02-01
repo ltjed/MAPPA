@@ -76,7 +76,7 @@ code:not([class]) {
   </a>
 </p>
 
-**TLDR:** We gave each agent in a multiagent system its own AI coach that watches every move and assigns blame when things go wrong—turning expensive failed runs into dense training signal and unlocking end-to-end finetuning of agent teams for the first time.
+**TLDR:** End-to-end finetuning of multiagent systems may offer a path to continual learning—different agents can specialize without catastrophic forgetting. Yet doing so remains challenging due to credit assignment and sample efficiency. By leveraging AI feedback as per-action process rewards, we demonstrate substantial improvements on long-horizon tasks including multi-step data science pipelines.
 
 ---
 
