@@ -24,7 +24,3 @@ bundle exec jekyll serve
 
 Then open http://localhost:4000/mappa/
 
-## Related
-
-- [freephdlabor.github.io](https://freephdlabor.github.io/) - Main organization page
-- [Paper (arXiv)](https://arxiv.org/abs/XXXX.XXXXX) - Full academic paper
