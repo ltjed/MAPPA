@@ -220,7 +220,7 @@ We train for 21 epochs on 64 tasks and evaluate 4 trials on 6 held-out tasks and
 | F1 (Fair) | 0.126 | 0.174 | **+38%** |
 | RMSE (Fair) | 24.9% | 14.6% | **-41%** |
 
-*Fair metrics penalize failed runs rather than ignoring them.*
+*Fair metrics penalize failed runs rather than ignoring them. For example, a failed run of classification task uses chance accuracy (50%) as fallback.*
 
 Training improves both success rate and quality metrics. The coach's per-action feedback translates to downstream improvements on held-out tasks.
 
@@ -228,17 +228,15 @@ We also validate MAPPA on competition math problems with a different multiagent 
 
 ---
 
-## Coach biases compound
+## Coaches shape agent specialization
 
-While analyzing training dynamics, we discovered something unexpected: our coach had preferences we did not program.
+While analyzing training dynamics, we noticed an interesting pattern: agents specialize based on coach preferences.
 
-Regression tasks kept improving while classification stagnated. Examining the scores revealed systematic bias—regression actions were scored 0.5–1.8 points higher than equivalent classification actions.
+Regression tasks kept improving while classification stagnated. The scores revealed the coach consistently rated regression actions 0.5–1.8 points higher than equivalent classification actions—a preference we didn't program, but the agents discovered and exploited.
 
-The agents figured this out before we did. After evaluation performance peaked (first 10 epochs), they specialized toward regression over the next 10 epochs, maintaining 87.5% success and further improving on quality metrics in regression tasks while classification performance dropped back to baseline.
+After evaluation performance peaked (first 10 epochs), agents leaned into this signal over the next 10 epochs, maintaining 87.5% success on regression while classification dropped to baseline. The coaching worked—agents learned to optimize what the coach rewarded.
 
-This illustrates a key limitation: coach biases get amplified through training. If you use LLM evaluation for training, you need to monitor for exactly this kind of drift.
-
-But this is addressable. We attribute the bias to two fixable limitations: (1) stateless evaluation—the coach sees each action in isolation, blind to the trend of classification declining while regression steadily improves across epochs; and (2) insufficient cross-trial context—without memory across tasks, the coach cannot calibrate its reward standards consistently between task types. We discuss solutions in the next section.
+This suggests an opportunity: coach preferences could be deliberately designed to steer specialization. The current limitation is that our coach is stateless—it can't see trends across epochs or calibrate standards across task types. A context-aware coach could balance task types intentionally, or even exploit this dynamic to shape agent expertise by design.
 
 ---
 
