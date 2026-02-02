@@ -87,9 +87,9 @@ code:not([class]) {
 
 # How to finetune any multiagent system on any task
 
-<p align="center" style="font-size: 1.2em; color: #555; margin-top: -0.5em;">Let an AI coach grade every play and train the agents as a team.</p>
+<p align="center" style="font-size: 1.2em; color: #555; margin-top: -0.5em; font-style: italic;">Let AI coaches grade every play and train the agents as a team.</p>
 
-<p align="center">
+<p align="center" style="text-align: center;">
   <a href="https://github.com/freephdlabor/mappa">
     <img src="https://img.shields.io/badge/try_mappa_now-black?style=for-the-badge&logo=github" alt="Try MAPPA Now!">
   </a>
@@ -109,11 +109,11 @@ code:not([class]) {
 
 ---
 
-## Why bother training more than 1 agent?
+## Why bother training > 1 agents?
 
 Finetuning a single model on one capability often degrades others. Train extensively on one language, and performance on others may drop. This is catastrophic forgetting: all tasks compete for the same parameters. MoE architectures partially solves this by routing different inputs to different parameter subsets, creating more runway to scale (more training to be done without forgetting) in one, big model. Almost all frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5 all use MoE designs nowadays. Multiagent systems apply the same idea at the agent-level, each agent having its own weights to be finetuned separately. Thus, if coordinated right, # of agents could be the next dimension of scaling.
 
-## What makes 
+## What makes training > 1 agents hard?
 
 So far, most multiagent frameworks implement specialization by assigning different personas or instructions to each agent, leaving the weights separation advantage completely untapped. This is because training all agents end-to-end faces two fundamental challenges:
 
@@ -121,7 +121,7 @@ So far, most multiagent frameworks implement specialization by assigning differe
 
 **Sample efficiency.** Multiagent rollouts are expensive. A single run could easily involve generating dozens of actions from different LLMs, each containing tool calls to be executed by the environment, taking minutes if not hours at a time. Yet current RL approaches only provides one training signal at the end. Making it very much like "sucking supervision from a straw."
 
-## per-action process rewards from AI feedback
+## Per-action process rewards from AI feedback
 
 We address both challenges by having an LLM coach evaluate every action as it happens—not just the final outcome.
 
@@ -249,11 +249,11 @@ Current limitations:
 
 Promising directions:
 
-- **Stateful coaching**: Our coach evaluates each action in isolation. A smarter coach might track its own scoring patterns and adjust for detected biases.
-- **Trainable coach**: The coach itself could be trained alongside the agents. What signal should train the coach? Options include meta-evaluation from a stronger model, agreement with outcome-based verification, or human feedback. Whether agents and coaches can co-evolve without external supervision—avoiding degenerate equilibria—remains open.
+- **Stateful coaching**: A smarter coach might track its own scoring patterns and adjust for detected biases.
+- **Trainable coach**: The coach itself could be trained alongside the agents.
 - **Beyond scalar rewards**: Coaches could generate corrected actions, not just scores—enabling hybrid RL and supervised learning approaches.
-- **Agent-as-a-coach**: Beyond stateful memory, the coach could become a full agent—using tools to compute statistics across training history, run code to verify correctness, or inspect intermediate artifacts. It could implement strategic training: first reward task completion to build reliability, then shift to quality metrics once success rates stabilize. This paradigm shift from "LLM-as-judge" (passive, stateless) to "agent-as-a-coach" (active, strategic) scales with model capability.
-- **Reward backpropagation**: Our current approach is bottom-up—critiquing everything that *could* be improved without knowing what actually matters. A top-down alternative: given an outcome, trace backward through agents, attributing credit or blame at each step and passing the residual to the previous agent—mirroring how gradient backpropagation assigns loss to each layer.
+- **Agent-as-a-coach**: The coach could become a full agent—using tools to compute statistics across training history, run code to verify correctness, inspect intermediate artifacts. It could even plan strategic training with short-term and long-term goals.
+- **Reward backpropagation**: Trace backward from outcomes, attribute credit or blame at each step, pass the residual to the previous agent—like gradient backprop through layers.
 
 We are entering an era where AI systems increasingly involve multiple agents working together. Figuring out how to train and evaluate these systems is becoming critical. This is our first step toward making that tractable.
 
