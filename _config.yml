@@ -3,7 +3,7 @@ description: Training multiagent systems with per-action process rewards from AI
 
 # GitHub Pages project site config
 baseurl: "/mappa"
-url: "https://freephdlabor.github.io"
+url: "https://ltjed.github.io"
 
 # Markdown processing
 markdown: kramdown
