@@ -133,7 +133,9 @@ The coach receives context that enables accurate credit assignment:
 - What the agent generated
 - Tool output: stdout, stderr, error messages
 
-When the final agent crashes with `FileNotFoundError`, the coach checks the earlier agents' tool outputs. If no agent ever saved `X_test.pkl`, blame goes to whoever should have created it—not the agent that correctly tried to load it.
+Why "coach" rather than "judge"? A judge rules objectively on correctness. A coach is training-aware—it tolerates imperfections that don't hurt task performance and holds each agent accountable only for its assigned role, not for responsibilities it was never given.
+
+When the final agent crashes with `FileNotFoundError`, the coach checks the earlier agents' tool outputs and the resulting filesystem. If no agent ever saved `X_test.pkl`, blame traces to whichever agent's earlier action that should have created it—not the final agent's action that correctly tried to load it.
 
 We call this approach **MAPPA**: training **M**ulti**A**gent systems with **P**er-action **P**rocess rewards from **A**I feedback.
 
@@ -185,7 +187,7 @@ The coach reads the receipts. No counterfactual reasoning required—just checki
 
 ### Handling messy real-world metrics
 
-Data science evaluation is not straightforward. A model might achieve 89% accuracy but 23% F1 score. Naive averaging would call this "decent," but it actually indicates failure—the model learned to predict the majority class.
+Data science evaluation is not straightforward. A model might achieve 89% accuracy but 23% F1 score on a classification task. Naive averaging would call this "decent," but it actually indicates failure—the model learned to predict the majority class.
 
 The coach understands this context:
 
@@ -224,9 +226,11 @@ While analyzing training dynamics, we discovered something unexpected: our coach
 
 Regression tasks kept improving while classification stagnated. Examining the scores revealed systematic bias—regression actions were scored 0.5–1.8 points higher than equivalent classification actions.
 
-The agents figured this out before we did. Over training, they specialized toward regression, maintaining 87.5% success on those tasks while classification dropped back to baseline.
+The agents figured this out before we did. After evaluation performance peaked (first 10 epochs), they specialized toward regression over the next 10 epochs, maintaining 87.5% success and further improving on quality metrics in regression tasks while classification performance dropped back to baseline.
 
 This illustrates a key limitation: coach biases get amplified through training. If you use LLM evaluation for training, you need to monitor for exactly this kind of drift.
+
+But this is addressable. We attribute the bias to two fixable limitations: (1) stateless evaluation—the coach sees each action in isolation, blind to the trend of classification declining while regression steadily improves across epochs; and (2) insufficient cross-trial context—without memory across tasks, the coach cannot calibrate its reward standards consistently between task types. We discuss solutions in the next section.
 
 ---
 
@@ -236,35 +240,18 @@ We showed that multiagent systems can be trained end-to-end using process reward
 
 The broader direction: scaling specialized agents—not just scaling single models—may be a promising path for complex tasks. A strong general model serves as coach to a team of smaller specialists that can collectively exceed what the coach could do alone.
 
-Open questions remain:
-
-- **Stateful coaching**: Our coach evaluates each action in isolation. A smarter coach might track its own scoring patterns and adjust for detected biases.
-- **Reward backpropagation**: Instead of evaluating each action independently, trace backward from outcomes to identify root causes.
-- **Beyond scalar rewards**: Coaches could generate corrected actions, not just scores—enabling hybrid RL and supervised learning approaches.
-
 Current limitations:
 - Coach quality bounds what agents can learn
 - Computational cost runs ~$50–150 per training run in API calls
 - Stateless evaluation misses temporal patterns
 
+Promising directions:
+
+- **Stateful coaching**: Our coach evaluates each action in isolation. A smarter coach might track its own scoring patterns and adjust for detected biases.
+- **Trainable coach**: The coach itself could be trained alongside the agents. What signal should train the coach? Options include meta-evaluation from a stronger model, agreement with outcome-based verification, or human feedback. Whether agents and coaches can co-evolve without external supervision—avoiding degenerate equilibria—remains open.
+- **Beyond scalar rewards**: Coaches could generate corrected actions, not just scores—enabling hybrid RL and supervised learning approaches.
+- **Agent-as-a-coach**: Beyond stateful memory, the coach could become a full agent—using tools to compute statistics across training history, run code to verify correctness, or inspect intermediate artifacts. It could implement strategic training: first reward task completion to build reliability, then shift to quality metrics once success rates stabilize. This paradigm shift from "LLM-as-judge" (passive, stateless) to "agent-as-a-coach" (active, strategic) scales with model capability.
+- **Reward backpropagation**: Our current approach is bottom-up—critiquing everything that *could* be improved without knowing what actually matters. A top-down alternative: given an outcome, trace backward through agents, attributing credit or blame at each step and passing the residual to the previous agent—mirroring how gradient backpropagation assigns loss to each layer.
+
 We are entering an era where AI systems increasingly involve multiple agents working together. Figuring out how to train and evaluate these systems is becoming critical. This is our first step toward making that tractable.
 
----
-
-## Citation
-
-```bibtex
-@article{mappa2026,
-  title={MAPPA: Scaling Multiagent LLM Systems with Process Rewards},
-  author={Anonymous},
-  journal={arXiv preprint arXiv:XXXX.XXXXX},
-  year={2026},
-  url={https://anonymous.4open.science/r/ANONYMOUS}
-}
-```
-
----
-
-## References
-
-[^1]: Kim, T., et al. (2026). *Reasoning Models Generate Societies of Thought*. arXiv preprint.
