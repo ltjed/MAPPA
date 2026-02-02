@@ -84,21 +84,21 @@ code:not([class]) {
 
 ---
 
-## Why bother training multiple agents?
+## Why bother training more than 1 agent?
 
 Fine-tuning a single model on one capability often degrades others. Optimize for instruction following, and open-ended generation becomes more rigid; train extensively on one language, and performance on others may drop. This is catastrophic forgetting: all skills compete for the same parameters.
 
-Mixture-of-experts (MoE) architectures address this by routing different inputs to different parameter subsets. This insight now underpins most frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5 all use MoE designs. Multiagent systems apply the same principle at a higher level: each agent has entirely separate weights, so improving one agent's capabilities cannot interfere with another's. Recent work[^1] suggests this kind of specialization emerges naturally—reasoning models trained purely for accuracy spontaneously develop diverse internal "personas."
+MoE architectures partially solves this by routing different inputs to different parameter subsets, creating more runway to scale (more training to be done without forgetting) in one, big model. Almost all frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5 all use MoE designs nowadays. Multiagent systems apply the same idea at the agent-level, each agent having its own weights to be finetuned separately. Thus, if coordinated right, # of agents could be the next dimension of scaling.
 
 ## Why existing frameworks stop at prompting
 
-So far, multiagent frameworks implement specialization only through system prompts—assigning different personas or instructions to each agent. This is because training all agents end-to-end faces two fundamental challenges:
+So far, most multiagent frameworks implement specialization by assigning different personas or instructions to each agent, leaving the weights separation advantage completely untapped. This is because training all agents end-to-end faces two fundamental challenges:
 
-**Credit assignment.** When a pipeline fails, which agent is responsible? A three-agent data science pipeline might fail with `FileNotFoundError: X_test.pkl not found`. The error appears in the final agent's code, but the root cause could be upstream—an earlier agent forgot to save that file. With standard outcome-based rewards, all agents receive the same penalty regardless of fault.
+**Credit assignment.** When a task succeeds/fails, which agent is responsible? A data science pipeline might fail with `FileNotFoundError`. The error may show up first when the final agent tries to access the file, when root cause is an earlier agent forgetting to save that file. Under current RL approaches, all agents share the final, outcome score regardless, and in doing so penalizing the final agent for doing the right thing.
 
-**Sample efficiency.** Multiagent rollouts are expensive. A single run might involve three agents, each taking multiple turns with code execution. This can take 30+ seconds and cost real money in API calls. Yet traditional RL provides only one bit of feedback at the end: success or failure. A rollout with eight good actions and one bug looks identical to one where everything failed.
+**Sample efficiency.** Multiagent rollouts are expensive. A single run could easily involve generating dozens of actions from different LLMs, each containing tool calls to be executed by the environment, taking minutes if not hours at a time. Yet current RL approaches only provides one training signal at the end. Making it very much like "sucking supervision from a straw."
 
-## Our approach: per-action process rewards
+## per-action process rewards from AI feedback
 
 We address both challenges by having an LLM coach evaluate every action as it happens—not just the final outcome.
 
