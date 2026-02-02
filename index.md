@@ -87,7 +87,9 @@ code:not([class]) {
 
 # How to finetune any multiagent system on any task
 
-<p align="center" style="font-size: 1.2em; color: #555; margin-top: -0.5em; font-style: italic;">Let AI coaches grade every play and train the agents as a team.</p>
+<p align="center" style="font-size: 1.2em; color: #555; margin-top: -0.5em; font-style: italic; text-align: center;">Let AI coaches grade every play and train the agents as a team.</p>
+
+<hr style="position: relative; left: 50%; transform: translateX(-50%); width: 100vw; max-width: 900px; border: none; border-top: 1px solid #ddd; margin: 1em 0;">
 
 <p align="center" style="text-align: center;">
   <a href="https://github.com/freephdlabor/mappa">
