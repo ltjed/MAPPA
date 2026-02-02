@@ -85,7 +85,7 @@ code:not([class]) {
 }
 </style>
 
-# MAPPA: How to Finetune Any Multiagent System on Any Task
+# How to finetune any multiagent system on any task
 
 <p align="center">
   <a href="https://github.com/freephdlabor/mappa">
