@@ -90,11 +90,9 @@ Fine-tuning a single model on one capability often degrades others. Optimize for
 
 Mixture-of-experts (MoE) architectures address this by routing different inputs to different parameter subsets. This insight now underpins most frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5 all use MoE designs. Multiagent systems apply the same principle at a higher level: each agent has entirely separate weights, so improving one agent's capabilities cannot interfere with another's. Recent work[^1] suggests this kind of specialization emerges naturally—reasoning models trained purely for accuracy spontaneously develop diverse internal "personas."
 
-Most existing multiagent frameworks implement specialization through prompt engineering—assigning different system prompts or personas to agents. This works for orchestrating pre-trained models, but the real power comes from modifying weights. Training agents together, end-to-end, allows them to learn coordination that prompting alone cannot achieve.
+## Why existing frameworks stop at prompting
 
-## Two challenges
-
-Training multiagent systems end-to-end faces two key obstacles:
+So far, multiagent frameworks implement specialization only through system prompts—assigning different personas or instructions to each agent. This is because training all agents end-to-end faces two fundamental challenges:
 
 **Credit assignment.** When a pipeline fails, which agent is responsible? A three-agent data science pipeline might fail with `FileNotFoundError: X_test.pkl not found`. The error appears in the final agent's code, but the root cause could be upstream—an earlier agent forgot to save that file. With standard outcome-based rewards, all agents receive the same penalty regardless of fault.
 
