@@ -87,6 +87,8 @@ code:not([class]) {
 
 # How to finetune any multiagent system on any task
 
+<p align="center" style="font-size: 1.2em; color: #555; margin-top: -0.5em;">Let an AI coach grade every play and train the agents as a team.</p>
+
 <p align="center">
   <a href="https://github.com/freephdlabor/mappa">
     <img src="https://img.shields.io/badge/try_mappa_now-black?style=for-the-badge&logo=github" alt="Try MAPPA Now!">
@@ -143,7 +145,7 @@ We call this approach **MAPPA**: training **M**ulti**A**gent systems with **P**e
 
 ## Extended example: data science pipelines
 
-To demonstrate MAPPA on a realistic long-horizon task, we train a three-agent pipeline on Kaggle-style machine learning problems. Each task provides CSV files and requires generating predictions for held-out test data.
+What does MAPPA look like in practice? We train a three-agent pipeline on Kaggle-style ML problems—realistic, long-horizon tasks where agents must coordinate over many steps. Each task provides CSV files and requires generating predictions for held-out test data.
 
 <img src="figures/dsbench_done.jpg" alt="DSBench pipeline with file passing" width="100%">
 
@@ -151,7 +153,7 @@ To demonstrate MAPPA on a realistic long-horizon task, we train a three-agent pi
 
 ### Pipeline structure
 
-The three agents form a sequential pipeline:
+Three agents pass the baton in sequence:
 
 - **Data Engineer**: Explores the data, handles preprocessing, engineers features. Saves processed data as pickle files.
 - **Modeler**: Loads the processed data, selects algorithms, trains models, tunes hyperparameters. Saves the trained model.
@@ -161,7 +163,7 @@ Each agent can take up to 4 turns, executing Python code in a sandboxed environm
 
 ### How the coach assigns credit
 
-The file-passing structure makes credit assignment tractable. When something fails, the coach examines the evidence:
+Why does file-passing matter for credit assignment? It creates a paper trail the coach can examine. When something fails:
 
 ```
 DATAENGINEER evaluation:
@@ -199,7 +201,7 @@ The model is not learning the actual signal.
 SCORE: 4/10
 ```
 
-By synthesizing multiple metrics in context, the coach provides judgment that simple averaging cannot.
+Simple averaging across metrics can't catch this. The coach synthesizes them in context—that's the judgment call.
 
 ### Results
 
