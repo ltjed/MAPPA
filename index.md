@@ -92,11 +92,11 @@ code:not([class]) {
 <hr style="position: relative; left: 50%; transform: translateX(-50%); width: 100vw; max-width: 900px; border: none; border-top: 1px solid #ddd; margin: 1em 0;">
 
 <p align="center" style="text-align: center;">
-  <a href="https://github.com/freephdlabor/mappa">
+  <a href="https://github.com/ltjed/multiagent-coaching">
     <img src="https://img.shields.io/badge/Try_It_Now-black?style=for-the-badge&logo=github" alt="Try It Now">
   </a>
-  <a href="https://github.com/freephdlabor/mappa">
-    <img src="https://img.shields.io/github/stars/freephdlabor/mappa?style=for-the-badge&color=gold" alt="Stars">
+  <a href="https://github.com/ltjed/multiagent-coaching">
+    <img src="https://img.shields.io/github/stars/ltjed/multiagent-coaching?style=for-the-badge&color=gold" alt="Stars">
   </a>
   <a href="https://arxiv.org/abs/2601.23228">
     <img src="https://img.shields.io/badge/Paper-arXiv-B31B1B?style=for-the-badge&logo=arxiv" alt="arXiv">
@@ -261,12 +261,14 @@ Promising directions:
 - **Agent-as-a-coach**: The coach could become a full agent—using tools to compute statistics across training history, run code to verify correctness, inspect intermediate artifacts. It could even plan strategic training with short-term and long-term goals.
 - **Reward backpropagation**: Trace backward from outcomes, attribute credit or blame at each step, pass the residual to the previous agent—like gradient backprop through layers.
 
-We are entering an era where AI systems increasingly involve multiple agents working together. Figuring out how to train and evaluate these systems is becoming critical. This is our first step toward making that tractable—and the code is available in our [GitHub repo](https://github.com/freephdlabor/mappa).
+We are entering an era where AI systems increasingly involve multiple agents working together. Figuring out how to train and evaluate these systems is becoming critical. Our approach-MAPPA-outlined in this blog could be the first step toward that direction.
+
+Define and train your own multiagent system @ [our repo](https://github.com/ltjed/multiagent-coaching)!
 
 ---
 
 ## Citation
-
+If you find this page is helpful, please cite:
 ```bibtex
 @misc{li2026mappa,
       title={Scaling Multiagent Systems with Process Rewards}, 
