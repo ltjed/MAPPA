@@ -98,7 +98,7 @@ code:not([class]) {
   <a href="https://github.com/freephdlabor/mappa">
     <img src="https://img.shields.io/github/stars/freephdlabor/mappa?style=for-the-badge&color=gold" alt="Stars">
   </a>
-  <a href="https://arxiv.org/abs/XXXX.XXXXX">
+  <a href="https://arxiv.org/abs/2601.23228">
     <img src="https://img.shields.io/badge/Paper-arXiv-B31B1B?style=for-the-badge&logo=arxiv" alt="arXiv">
   </a>
 </p>
@@ -113,7 +113,11 @@ code:not([class]) {
 
 ## Why bother training > 1 agents?
 
-Finetuning a single model on one capability often degrades others. Train extensively on one language, and performance on others may drop. This is catastrophic forgetting: all tasks compete for the same parameters. MoE architectures partially solves this by routing different inputs to different parameter subsets, creating more runway to scale (more training to be done without forgetting) in one, big model. Almost all frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5 all use MoE designs nowadays. Multiagent systems apply the same idea at the agent-level, each agent having its own weights to be finetuned separately. Thus, if coordinated right, # of agents could be the next dimension of scaling.
+Finetuning a single model on one capability often degrades others. Train extensively on one language, and performance on others may drop. This is catastrophic forgetting: all tasks compete for the same parameters. 
+
+MoE architectures partially solves this by routing different inputs to different parameter subsets, creating more runway to scale (more training to be done without forgetting) in one, big model. Almost all frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5 all use MoE designs nowadays. 
+
+Multiagent systems apply the same idea at the agent-level, each agent having its own weights to be finetuned separately. Thus, if coordinated right, # of agents could be the next dimension of scaling.
 
 ## What makes training > 1 agents hard?
 
@@ -137,17 +141,17 @@ The coach receives context that enables accurate credit assignment:
 - What the agent generated
 - Tool output: stdout, stderr, error messages
 
-Why "coach" rather than "judge"? A judge rules objectively on correctness. A coach is training-aware—it tolerates imperfections that don't hurt task performance and holds each agent accountable only for its assigned role, not for responsibilities it was never given.
+Why "coach" rather than "judge"? A judge rules objectively on correctness. A coach is context-aware, evaluating each agent based on for its assigned role and given inputs, not just on some fixed metrics or eventual outcomes.
 
 When the final agent crashes with `FileNotFoundError`, the coach checks the earlier agents' tool outputs and the resulting filesystem. If no agent ever saved `X_test.pkl`, blame traces to whichever agent's earlier action that should have created it—not the final agent's action that correctly tried to load it.
 
-We call this approach **MAPPA**: training **M**ulti**A**gent systems with **P**er-action **P**rocess rewards from **A**I feedback.
+We call the overall approach **MAPPA**: training **M**ulti**A**gent systems with **P**er-action **P**rocess rewards from **A**I feedback.
 
 ---
 
 ## Extended example: data science pipelines
 
-What does MAPPA look like in practice? We train a three-agent pipeline on Kaggle-style ML problems—realistic, long-horizon tasks where agents must coordinate over many steps. Each task provides CSV files and requires generating predictions for held-out test data.
+What does MAPPA look like in practice? We train a three-agent pipeline on Kaggle-style data modeling problems—realistic, long-horizon tasks where agents must coordinate over many steps. Each task provides CSV files and requires generating predictions for held-out test data. Note that this is not the only multiagent system/task that we test our approach on, more experiment results and in-depth discussion can be found in our [technical report](https://arxiv.org/abs/2601.23228).
 
 <img src="figures/dsbench_done.jpg" alt="DSBench pipeline with file passing" width="100%">
 
@@ -165,7 +169,7 @@ Each agent can take up to 4 turns, executing Python code in a sandboxed environm
 
 ### How the coach assigns credit
 
-Why does file-passing matter for credit assignment? It creates a paper trail the coach can examine. When something fails:
+Why does file-passing matter for credit assignment? It creates a written record for the coach to examine. E.g., when something fails:
 
 ```
 DATAENGINEER evaluation:
@@ -187,13 +191,13 @@ ANALYST evaluation:
 - SCORE: 6/10
 ```
 
-The coach reads the receipts. No counterfactual reasoning required—just checking what each agent actually produced.
+Importantly, there is no counterfactual reasoning required—just checking what each agent actually produced.
 
 ### Handling messy real-world metrics
 
-Data science evaluation is not straightforward. A model might achieve 89% accuracy but 23% F1 score on a classification task. Naive averaging would call this "decent," but it actually indicates failure—the model learned to predict the majority class.
+Like most long-horizon, real-world tasks, evaluating the agent's prediction is not as straightforward as checking a number: a model might achieve 89% accuracy but 23% F1 score on a classification task. Naive averaging would label this as decent when in reality the model just learned to predict the majority class.
 
-The coach understands this context:
+The coach understands this by putting together the context:
 
 ```
 Coach reasoning:
@@ -207,7 +211,7 @@ Simple averaging across metrics can't catch this. The coach synthesizes them in 
 
 ### Results
 
-We train for 21 epochs on 64 tasks and evaluate on 6 held-out tasks:
+We train for 21 epochs on 64 tasks and evaluate 4 trials on 6 held-out tasks and reports the average:
 
 | Metric | Before | After | Change |
 |--------|--------|-------|--------|
@@ -259,3 +263,16 @@ Promising directions:
 
 We are entering an era where AI systems increasingly involve multiple agents working together. Figuring out how to train and evaluate these systems is becoming critical. This is our first step toward making that tractable.
 
+---
+
+## Citation
+
+```bibtex
+@article{li2026mappa,
+  title={MAPPA: Scaling Multiagent Systems with Process Rewards},
+  author={Li, Ed and Ren, Junyu and Yan, Cat},
+  journal={arXiv preprint arXiv:2601.23228},
+  year={2026},
+  url={https://arxiv.org/abs/2601.23228}
+}
+```
