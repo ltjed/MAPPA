@@ -85,7 +85,7 @@ code:not([class]) {
 }
 </style>
 
-# [MAPPA](https://github.com/freephdlabor/mappa): How to Finetune Any Multiagent System on Any Task
+# MAPPA: How to Finetune Any Multiagent System on Any Task
 
 <p align="center">
   <a href="https://github.com/freephdlabor/mappa">
@@ -99,7 +99,7 @@ code:not([class]) {
   </a>
 </p>
 
-**TLDR:** <u>Finetuning many agents end-to-end offers a workaround to **continual learning**</u> since different agents can specialize without catastrophic forgetting. Yet doing so is hard due to **credit assignment** and **sample efficiency**. We found that using AI feedback as **per-action process rewards** holds promise for addressing these challenges and unlocks a new axis for scaling post-training.
+**TLDR:** <u>Finetuning many agents end-to-end offers a workaround to <strong>continual learning</strong></u> since different agents can specialize without catastrophic forgetting. Yet doing so is hard due to **credit assignment** and **sample efficiency**. We found that using AI feedback as **per-action process rewards** holds promise for addressing these challenges and unlocks a new axis for scaling post-training.
 
 <img src="figures/scaling_hand.jpg" alt="Multiagent scaling" width="100%">
 
