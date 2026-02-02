@@ -1,64 +1,66 @@
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 body {
-  font-size: 22px !important;
-  line-height: 1.9 !important;
-  max-width: 900px !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 18px !important;
+  line-height: 1.75 !important;
+  max-width: 680px !important;
   margin: 0 auto !important;
   padding: 20px !important;
+  color: #1a1a1a !important;
 }
 
 h1 {
-  font-size: 1.8em !important;
-  line-height: 1.3 !important;
+  font-size: 2.2em !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  margin-bottom: 0.5em !important;
 }
 
 h2 {
-  font-size: 1.4em !important;
+  font-size: 1.5em !important;
+  font-weight: 600 !important;
   margin-top: 2.5em !important;
-  line-height: 1.4 !important;
+  line-height: 1.3 !important;
 }
 
 h3 {
-  font-size: 1.2em !important;
-  line-height: 1.5 !important;
+  font-size: 1.25em !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  margin-top: 2em !important;
 }
 
 p, li {
-  font-size: 22px !important;
-  line-height: 1.9 !important;
+  font-size: 18px !important;
+  line-height: 1.75 !important;
 }
 
 blockquote p {
-  font-size: 22px !important;
-}
-
-code {
-  font-size: 20px !important;
-}
-
-pre code {
   font-size: 18px !important;
 }
 
-h1 code {
-  font-size: 0.9em !important;
+code {
+  font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace !important;
+  font-size: 15px !important;
 }
 
-h2 code {
-  font-size: 0.9em !important;
+pre code {
+  font-size: 14px !important;
 }
 
-h3 code {
-  font-size: 0.9em !important;
+h1 code, h2 code, h3 code {
+  font-size: 0.85em !important;
 }
 
 code:not([class]) {
-  background-color: transparent !important;
-  color: inherit !important;
-  padding: 0 !important;
-  border: none !important;
-  font-weight: bold !important;
-  font-size: 1em !important;
+  background-color: #f5f5f5 !important;
+  color: #1a1a1a !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  font-weight: 500 !important;
+  font-size: 0.9em !important;
 }
 </style>
 
@@ -86,15 +88,15 @@ code:not([class]) {
 
 ## Why bother training more than 1 agent?
 
-Fine-tuning a single model on one capability often degrades others. Optimize for instruction following, and open-ended generation becomes more rigid; train extensively on one language, and performance on others may drop. This is catastrophic forgetting: all skills compete for the same parameters.
+Finetuning a single model on one capability often degrades others. Optimize for instruction following, and open-ended generation becomes more rigid; train extensively on one language, and performance on others may drop. This is catastrophic forgetting: all skills compete for the same parameters.
 
 MoE architectures partially solves this by routing different inputs to different parameter subsets, creating more runway to scale (more training to be done without forgetting) in one, big model. Almost all frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5 all use MoE designs nowadays. Multiagent systems apply the same idea at the agent-level, each agent having its own weights to be finetuned separately. Thus, if coordinated right, # of agents could be the next dimension of scaling.
 
-## Why existing frameworks stop at prompting
+## What makes 
 
 So far, most multiagent frameworks implement specialization by assigning different personas or instructions to each agent, leaving the weights separation advantage completely untapped. This is because training all agents end-to-end faces two fundamental challenges:
 
-**Credit assignment.** When a task succeeds/fails, which agent is responsible? A data science pipeline might fail with `FileNotFoundError`. The error may show up first when the final agent tries to access the file, when root cause is an earlier agent forgetting to save that file. Under current RL approaches, all agents share the final, outcome score regardless, and in doing so penalizing the final agent for doing the right thing.
+**Credit assignment.** When a task succeeds/fails, which agent is responsible? A data science pipeline might fail with `FileNotFoundError`. The error may show up first when the final agent tries to access the file, when root cause is an earlier agent forgetting to save that file. Under current RL approaches, all agents share the final, outcome score regardless, and in doing so penalizing the final agent for doing the right
 
 **Sample efficiency.** Multiagent rollouts are expensive. A single run could easily involve generating dozens of actions from different LLMs, each containing tool calls to be executed by the environment, taking minutes if not hours at a time. Yet current RL approaches only provides one training signal at the end. Making it very much like "sucking supervision from a straw."
 
