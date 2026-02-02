@@ -85,7 +85,7 @@ code:not([class]) {
 }
 </style>
 
-# [MAPPA](https://github.com/freephdlabor/mappa): Scaling Multiagent LLM Systems with Process Rewards
+# [MAPPA](https://github.com/freephdlabor/mappa): How to Finetune Any Multiagent System on Any Task
 
 <p align="center">
   <a href="https://github.com/freephdlabor/mappa">
@@ -99,7 +99,7 @@ code:not([class]) {
   </a>
 </p>
 
-**TLDR:** Finetuning many agents end-to-end offers a workaround to **continual learning** since different agents can specialize without catastrophic forgetting. Yet doing so is hard due to **credit assignment** and **sample efficiency**. Using AI feedback as **per-action process rewards**, we demonstrate this approach is feasible and led to real gains on different systems & tasks.
+**TLDR:** <u>Finetuning many agents end-to-end offers a workaround to **continual learning**</u> since different agents can specialize without catastrophic forgetting. Yet doing so is hard due to **credit assignment** and **sample efficiency**. We found that using AI feedback as **per-action process rewards** holds promise for addressing these challenges and unlocks a new axis for scaling post-training.
 
 <img src="figures/scaling_hand.jpg" alt="Multiagent scaling" width="100%">
 
@@ -109,9 +109,7 @@ code:not([class]) {
 
 ## Why bother training more than 1 agent?
 
-Finetuning a single model on one capability often degrades others. Optimize for instruction following, and open-ended generation becomes more rigid; train extensively on one language, and performance on others may drop. This is catastrophic forgetting: all skills compete for the same parameters.
-
-MoE architectures partially solves this by routing different inputs to different parameter subsets, creating more runway to scale (more training to be done without forgetting) in one, big model. Almost all frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5 all use MoE designs nowadays. Multiagent systems apply the same idea at the agent-level, each agent having its own weights to be finetuned separately. Thus, if coordinated right, # of agents could be the next dimension of scaling.
+Finetuning a single model on one capability often degrades others. Train extensively on one language, and performance on others may drop. This is catastrophic forgetting: all tasks compete for the same parameters. MoE architectures partially solves this by routing different inputs to different parameter subsets, creating more runway to scale (more training to be done without forgetting) in one, big model. Almost all frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5 all use MoE designs nowadays. Multiagent systems apply the same idea at the agent-level, each agent having its own weights to be finetuned separately. Thus, if coordinated right, # of agents could be the next dimension of scaling.
 
 ## What makes 
 
