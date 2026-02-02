@@ -93,7 +93,7 @@ code:not([class]) {
 
 <p align="center" style="text-align: center;">
   <a href="https://github.com/freephdlabor/mappa">
-    <img src="https://img.shields.io/badge/try_mappa_now-black?style=for-the-badge&logo=github" alt="Try MAPPA Now!">
+    <img src="https://img.shields.io/badge/Try_It_Now-black?style=for-the-badge&logo=github" alt="Try It Now">
   </a>
   <a href="https://github.com/freephdlabor/mappa">
     <img src="https://img.shields.io/github/stars/freephdlabor/mappa?style=for-the-badge&color=gold" alt="Stars">
@@ -261,7 +261,7 @@ Promising directions:
 - **Agent-as-a-coach**: The coach could become a full agent—using tools to compute statistics across training history, run code to verify correctness, inspect intermediate artifacts. It could even plan strategic training with short-term and long-term goals.
 - **Reward backpropagation**: Trace backward from outcomes, attribute credit or blame at each step, pass the residual to the previous agent—like gradient backprop through layers.
 
-We are entering an era where AI systems increasingly involve multiple agents working together. Figuring out how to train and evaluate these systems is becoming critical. This is our first step toward making that tractable.
+We are entering an era where AI systems increasingly involve multiple agents working together. Figuring out how to train and evaluate these systems is becoming critical. This is our first step toward making that tractable—and the code is available in our [GitHub repo](https://github.com/freephdlabor/mappa).
 
 ---
 
