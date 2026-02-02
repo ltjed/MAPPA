@@ -62,7 +62,7 @@ code:not([class]) {
 }
 </style>
 
-# MAPPA: Scaling Multiagent Systems with Process Rewards
+# MAPPA: Scaling Multiagent LLM Systems with Process Rewards
 
 <p align="center">
   <a href="https://github.com/freephdlabor/mappa">
@@ -76,84 +76,71 @@ code:not([class]) {
   </a>
 </p>
 
-**TLDR:** Finetuning many agents end-to-end offers a workaround to **continual learning** since different agents can specialize without catastrophic forgetting. Yet this is easier said than done due to **credit assignment** and **sample efficiency** problems. Using AI feedback as **per-action process rewards**, we show how this approach led to real gains across different systems & tasks.
+**TLDR:** Finetuning many agents end-to-end offers a workaround to **continual learning** since different agents can specialize without catastrophic forgetting. Yet doing so is hard due to **credit assignment** and **sample efficiency**. Using AI feedback as **per-action process rewards**, we demonstrate this approach is feasible and led to real gains on different systems & tasks.
 
 <img src="figures/scaling_hand.jpg" alt="Multiagent scaling" width="100%">
 
-*Multiagent systems sidestep catastrophic forgetting the same way mixture-of-experts does—by allowing different tasks to occupy different parameters.*
+*Multiagent systems sidestep catastrophic forgetting the same way mixture-of-experts does—by giving different skills different parameters.*
 
 ---
 
 ## Why bother training multiple agents?
 
-Finetuning a single model on one capability often degrades others. Optimize for instruction following and open-ended generation becomes more rigid; train extensively on one language and performance on others may drop. This is catastrophic forgetting: all skills compete for the same parameters.
+Fine-tuning a single model on one capability often degrades others. Optimize for instruction following, and open-ended generation becomes more rigid; train extensively on one language, and performance on others may drop. This is catastrophic forgetting: all skills compete for the same parameters.
 
-MoE is popular in part because it provides extra runway to scale a single model further: inputs are routed to different experts with disjoint parameters. Virtually all SOTA models—Gemini 2.5, Kimi K2, Claude Opus 4.5—use MoE. Multiagent systems add another axis for scaling: each agent has entirely separate weights, allowing specialization to occur between agents.
+Mixture-of-experts (MoE) architectures address this by routing different inputs to different parameter subsets. This insight now underpins most frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5 all use MoE designs. Multiagent systems apply the same principle at a higher level: each agent has entirely separate weights, so improving one agent's capabilities cannot interfere with another's. Recent work[^1] suggests this kind of specialization emerges naturally—reasoning models trained purely for accuracy spontaneously develop diverse internal "personas."
 
-```
-Single Model:      [All params] → Output
-                   ↑ interference between skills
-
-Multiagent:        [Agent 1: Engineer] ─┐
-                   [Agent 2: Modeler]   ─┼→ Pipeline → Output
-                   [Agent 3: Analyst]   ─┘
-                   ↑ separate params, no interference
-```
-
-We demonstrate this with a data science pipeline where three agents collaborate to solve Kaggle-style ML tasks. Each agent has a distinct role:
-
-- `DataEngineer`: performs exploratory analysis, preprocessing, and feature engineering
-- `Modeler`: selects algorithms, trains models, and tunes hyperparameters
-- `Analyst`: generates predictions and formats the final submission
-
-Agents communicate by passing files: the Data Engineer produces preprocessed data, the Modeler consumes it and saves a trained model, and the Analyst loads both to generate predictions. Each agent can execute Python code in a shared sandbox.
-
-<img src="figures/dsbench_done.jpg" alt="DSBench pipeline with file passing" width="100%">
-
-*Three agents pass files through a shared workspace. The Data Engineer preprocesses CSV files into pickle artifacts; the Modeler trains and saves a model; the Analyst generates the final submission.*
-
----
+Most existing multiagent frameworks implement specialization through prompt engineering—assigning different system prompts or personas to agents. This works for orchestrating pre-trained models, but the real power comes from modifying weights. Training agents together, end-to-end, allows them to learn coordination that prompting alone cannot achieve.
 
 ## Two challenges
 
-Training multiagent systems end-to-end faces two problems.
+Training multiagent systems end-to-end faces two key obstacles:
 
-**Credit assignment.** When the pipeline fails, which agent is responsible? A `FileNotFoundError` in the Analyst's code might trace back to the Data Engineer forgetting to save a file. With a single outcome reward, all agents receive identical gradients regardless of individual contribution.
+**Credit assignment.** When a pipeline fails, which agent is responsible? A three-agent data science pipeline might fail with `FileNotFoundError: X_test.pkl not found`. The error appears in the final agent's code, but the root cause could be upstream—an earlier agent forgot to save that file. With standard outcome-based rewards, all agents receive the same penalty regardless of fault.
 
-**Sample efficiency.** A single rollout involves 3 agents × up to 4 turns × code execution, taking 30+ seconds and significant compute. Yet standard RL provides only one bit of feedback—success or failure—for the entire trajectory.
-
-```
-Traditional RL:
-  Rollout 1: [Good] → [Good] → [Bug] → FAIL → Reward: 0
-  Rollout 2: [Good] → [Bad]  → [...]  → FAIL → Reward: 0
-  Rollout 3: [Good] → [Good] → [Good] → SUCCESS → Reward: 1
-
-  Learning signal: 1 bit from 3 expensive rollouts
-```
-
-A rollout with 8 good actions and 1 bug looks identical to one where everything failed. The training signal doesn't distinguish between them.
-
----
+**Sample efficiency.** Multiagent rollouts are expensive. A single run might involve three agents, each taking multiple turns with code execution. This can take 30+ seconds and cost real money in API calls. Yet traditional RL provides only one bit of feedback at the end: success or failure. A rollout with eight good actions and one bug looks identical to one where everything failed.
 
 ## Our approach: per-action process rewards
 
-We address both challenges by having an LLM evaluate each agent action as it happens, rather than waiting for the final outcome.
-
-We call this **MAPPA**: training **M**ulti**A**gent systems with **P**er-action **P**rocess rewards from **A**I feedback.
+We address both challenges by having an LLM coach evaluate every action as it happens—not just the final outcome.
 
 <img src="figures/execution_loop_hand-drawn.jpeg" alt="Execution loop with coach evaluation" width="100%">
 
-*Each action receives feedback from the coach—not just the final outcome.*
+*With per-action evaluation, every step gets feedback—not just the final outcome.*
 
-The key insight: when agents execute code, stdout and stderr create a record of what actually happened. An LLM coach can examine this record to determine which agent caused a failure.
-
-For each action, the coach receives:
-- The agent's role and the overall task
-- The input context the agent observed
-- The action the agent generated
+The coach receives context that enables accurate credit assignment:
+- The agent's role and what it was asked to do
+- What the agent saw before acting
+- What the agent generated
 - Tool output: stdout, stderr, error messages
 
-When the Analyst crashes with `FileNotFoundError: X_test.pkl not found`, the coach checks the Data Engineer's execution logs. If those logs never mention saving `X_test.pkl`, the coach assigns low scores to the Data Engineer—not the Analyst who correctly attempted to load it.
+When the final agent crashes with `FileNotFoundError`, the coach checks the earlier agents' tool outputs. If no agent ever saved `X_test.pkl`, blame goes to whoever should have created it—not the agent that correctly tried to load it.
+
+We call this approach **MAPPA**: training **M**ulti**A**gent systems with **P**er-action **P**rocess rewards from **A**I feedback.
+
+---
+
+## Extended example: data science pipelines
+
+To demonstrate MAPPA on a realistic long-horizon task, we train a three-agent pipeline on Kaggle-style machine learning problems. Each task provides CSV files and requires generating predictions for held-out test data.
+
+<img src="figures/dsbench_done.jpg" alt="DSBench pipeline with file passing" width="100%">
+
+*Agents pass files to each other through a shared workspace—creating a paper trail the coach can examine.*
+
+### Pipeline structure
+
+The three agents form a sequential pipeline:
+
+- **Data Engineer**: Explores the data, handles preprocessing, engineers features. Saves processed data as pickle files.
+- **Modeler**: Loads the processed data, selects algorithms, trains models, tunes hyperparameters. Saves the trained model.
+- **Analyst**: Loads the model and test data, generates predictions, formats the submission file.
+
+Each agent can take up to 4 turns, executing Python code in a sandboxed environment. Agents communicate by reading and writing files to a shared workspace.
+
+### How the coach assigns credit
+
+The file-passing structure makes credit assignment tractable. When something fails, the coach examines the evidence:
 
 ```
 DATAENGINEER evaluation:
@@ -163,85 +150,85 @@ DATAENGINEER evaluation:
 - SCORE: 3/10
 
 MODELER evaluation:
-- Received expected files
+- Received expected files from Data Engineer
 - Tool output: "Saved model.pkl successfully"
-- VERDICT: Performed correctly given inputs
+- VERDICT: Completed task correctly given inputs
 - SCORE: 8/10
 
 ANALYST evaluation:
-- Required file was never created upstream
+- Required file X_test.pkl was never created upstream
 - Correctly attempted to load it
-- VERDICT: Not at fault
+- VERDICT: Not at fault for the failure
 - SCORE: 6/10
 ```
 
-Credit assignment emerges from giving the coach the right context. No explicit machinery required.
+The coach reads the receipts. No counterfactual reasoning required—just checking what each agent actually produced.
 
-### Handling multi-dimensional metrics
+### Handling messy real-world metrics
 
-Data science evaluation involves multiple metrics that can conflict. A model might achieve 89% accuracy but 23% F1—high accuracy from predicting the majority class, but failure to capture the minority class signal.
+Data science evaluation is not straightforward. A model might achieve 89% accuracy but 23% F1 score. Naive averaging would call this "decent," but it actually indicates failure—the model learned to predict the majority class.
 
-Naive averaging would score this as decent:
-
-```
-Simple average: (0.89 + 0.23 + 0.78) / 3 = 0.63
-```
-
-The coach recognizes this pattern:
+The coach understands this context:
 
 ```
 Coach reasoning:
 High accuracy (0.89) but very low F1 (0.23)
-= classic class imbalance problem.
-This is a FAILURE despite the good-looking accuracy.
+indicates a class imbalance problem.
+The model is not learning the actual signal.
 SCORE: 4/10
 ```
 
-Pre-defined weighting schemes cannot anticipate every situation. The coach provides contextual judgment based on the specific metrics and task.
+By synthesizing multiple metrics in context, the coach provides judgment that simple averaging cannot.
 
----
+### Results
 
-## Results
-
-We trained the three-agent pipeline on 64 Kaggle-style tasks and evaluated on 6 held-out tasks (4 classification, 2 regression).
+We train for 21 epochs on 64 tasks and evaluate on 6 held-out tasks:
 
 | Metric | Before | After | Change |
 |--------|--------|-------|--------|
-| Success Rate | 50% | 67% | **+17pp** |
+| Success Rate | 50.0% | 66.7% | **+16.7pp** |
+| Accuracy (Fair) | 0.583 | 0.719 | **+23%** |
 | F1 (Fair) | 0.126 | 0.174 | **+38%** |
 | RMSE (Fair) | 24.9% | 14.6% | **-41%** |
 
-Success rate measures whether the pipeline produces valid predictions. Fair metrics penalize failures (0.5 for Accuracy, 0 for F1, 50% for RMSE), so improvements reflect both higher success rates and better quality on successful runs.
+*Fair metrics penalize failed runs rather than ignoring them.*
 
-### Coach bias
+Training improves both success rate and quality metrics. The coach's per-action feedback translates to downstream improvements on held-out tasks.
 
-While analyzing training dynamics, we observed an unexpected pattern: regression tasks continued improving while classification performance stagnated. Stratifying coach scores by task type revealed systematic bias—regression actions were scored 0.5–1.8 points higher than equivalent classification actions.
-
-The agents learned to exploit this. Over training, they specialized toward regression, maintaining 87.5% success on those tasks while classification dropped to baseline.
-
-This illustrates a general principle: coach biases compound through training. When using LLM evaluation for RL, behavioral metrics should be monitored to detect this kind of drift.
+We also validate MAPPA on competition math problems with a different multiagent configuration, achieving +5–17pp improvements on AIME and AMC benchmarks. See the paper for details.
 
 ---
 
-## Limitations and future work
+## Coach biases compound
 
-**Current limitations:**
+While analyzing training dynamics, we discovered something unexpected: our coach had preferences we did not program.
+
+Regression tasks kept improving while classification stagnated. Examining the scores revealed systematic bias—regression actions were scored 0.5–1.8 points higher than equivalent classification actions.
+
+The agents figured this out before we did. Over training, they specialized toward regression, maintaining 87.5% success on those tasks while classification dropped back to baseline.
+
+This illustrates a key limitation: coach biases get amplified through training. If you use LLM evaluation for training, you need to monitor for exactly this kind of drift.
+
+---
+
+## What's next
+
+We showed that multiagent systems can be trained end-to-end using process rewards from an LLM coach. Dense per-action feedback addresses credit assignment, improves sample efficiency, and works across domains.
+
+The broader direction: scaling specialized agents—not just scaling single models—may be a promising path for complex tasks. A strong general model serves as coach to a team of smaller specialists that can collectively exceed what the coach could do alone.
+
+Open questions remain:
+
+- **Stateful coaching**: Our coach evaluates each action in isolation. A smarter coach might track its own scoring patterns and adjust for detected biases.
+- **Reward backpropagation**: Instead of evaluating each action independently, trace backward from outcomes to identify root causes.
+- **Beyond scalar rewards**: Coaches could generate corrected actions, not just scores—enabling hybrid RL and supervised learning approaches.
+
+Current limitations:
 - Coach quality bounds what agents can learn
-- Computational cost: ~$50-150 per training run in API calls
-- Stateless evaluation misses temporal patterns across actions
+- Computational cost runs ~$50–150 per training run in API calls
+- Stateless evaluation misses temporal patterns
 
-**Open directions:**
-- **Stateful coaching**: The coach evaluates each action in isolation and cannot detect its own systematic biases. A coach with access to training history could notice patterns like "I've been scoring regression higher—should I adjust?"
-- **Reward backpropagation**: Rather than evaluating actions independently, trace backward from outcomes to identify root causes.
-- **Beyond scalar rewards**: Coaches could generate corrected actions rather than just scores, enabling hybrid RL+SFT approaches.
-
----
-
-## Conclusion
-
-We demonstrate that multiagent systems can be trained end-to-end using per-action process rewards from an AI coach. Dense feedback addresses credit assignment, improves sample efficiency, and enables learning even from failed trajectories.
-
-Scaling specialized agents—rather than scaling single models—represents a promising direction for complex, long-horizon tasks. A strong general model can serve as coach to smaller specialists that collectively exceed what the coach achieves alone.
+We are entering an era where AI systems increasingly involve multiple agents working together. Figuring out how to train and evaluate these systems is becoming critical. This is our first step toward making that tractable.
 
 ---
 
@@ -249,10 +236,16 @@ Scaling specialized agents—rather than scaling single models—represents a pr
 
 ```bibtex
 @article{mappa2026,
-  title={MAPPA: Scaling Multiagent Systems with Process Rewards},
+  title={MAPPA: Scaling Multiagent LLM Systems with Process Rewards},
   author={Anonymous},
   journal={arXiv preprint arXiv:XXXX.XXXXX},
   year={2026},
   url={https://anonymous.4open.science/r/ANONYMOUS}
 }
 ```
+
+---
+
+## References
+
+[^1]: Kim, T., et al. (2026). *Reasoning Models Generate Societies of Thought*. arXiv preprint.
