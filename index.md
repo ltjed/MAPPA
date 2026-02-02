@@ -16,6 +16,26 @@ h1 {
   font-weight: 700 !important;
   line-height: 1.2 !important;
   margin-bottom: 0.5em !important;
+  max-width: 900px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  position: relative !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 100vw !important;
+  max-width: 900px !important;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  box-sizing: border-box !important;
+}
+
+h1 a {
+  color: #2563eb !important;
+  text-decoration: none !important;
+}
+
+h1 a:hover {
+  text-decoration: underline !important;
 }
 
 h2 {
@@ -64,7 +84,7 @@ code:not([class]) {
 }
 </style>
 
-# MAPPA: Scaling Multiagent LLM Systems with Process Rewards
+# [MAPPA](https://github.com/freephdlabor/mappa): Scaling Multiagent LLM Systems with Process Rewards
 
 <p align="center">
   <a href="https://github.com/freephdlabor/mappa">
