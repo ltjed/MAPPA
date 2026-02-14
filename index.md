@@ -115,7 +115,7 @@ code:not([class]) {
 
 Finetuning a single model on one capability often degrades others. Train extensively on one language, and performance on others may drop. This is catastrophic forgetting: all tasks compete for the same parameters. 
 
-MoE architectures partially solves this by routing different inputs to different parameter subsets, creating more runway to scale (more training to be done without forgetting) in one, big model. Almost all frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5 all use MoE designs nowadays. 
+Yeah, MoE architecture partially solves this by routing different inputs to different parameter subsets, creating more runway to scale (more training to be done without forgetting) in one, big model. Almost all frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5—all use MoE designs nowadays. 
 
 Multiagent systems apply the same idea at the agent-level, each agent having its own weights to be finetuned separately. Thus, if coordinated right, # of agents could be the next dimension of scaling.
 
@@ -123,9 +123,9 @@ Multiagent systems apply the same idea at the agent-level, each agent having its
 
 So far, most multiagent frameworks implement specialization by assigning different personas or instructions to each agent, leaving the weights separation advantage completely untapped. This is because training all agents end-to-end faces two fundamental challenges:
 
-**Credit assignment.** When a task succeeds/fails, which agent is responsible? A data science pipeline might fail with `FileNotFoundError`. The error may show up first when the final agent tries to access the file, when root cause is an earlier agent forgetting to save that file. Under current RL approaches, all agents share the final, outcome score regardless, and in doing so penalizing the final agent for doing the right
+**Credit assignment.** When a task succeeds/fails, which agent is responsible? A data science pipeline might fail with `FileNotFoundError`. The error may show up first when the final agent tries to access the file, when root cause is an earlier agent forgetting to save that file. Under current RL approaches, all agents share the final, outcome score regardless, and in doing so penalizing the final agent for taking the right action.
 
-**Sample efficiency.** Multiagent rollouts are expensive. A single run could easily involve generating dozens of actions from different LLMs, each containing tool calls to be executed by the environment, taking minutes if not hours at a time. Yet current RL approaches only provides one training signal at the end. Making it very much like "sucking supervision from a straw."
+**Sample efficiency.** Multiagent rollouts are expensive. A single run could easily involve generating dozens of actions from different LLMs, each containing tool calls to be executed by the environment, taking minutes if not hours at a time. Yet current RL approaches only provide one training signal at the end, making it very much like "sucking supervision from a straw."
 
 ## Per-action process rewards from AI feedback
 
@@ -141,9 +141,9 @@ The coach receives context that enables accurate credit assignment:
 - What the agent generated
 - Tool output: stdout, stderr, error messages
 
-Why "coach" rather than "judge"? A judge rules objectively on correctness. A coach is context-aware, evaluating each agent based on for its assigned role and given inputs, not just on some fixed metrics or eventual outcomes.
+Why "coach" rather than "judge"? A judge rules objectively on correctness. A coach is context-aware, evaluating each agent based on its assigned role and given inputs, not just on some fixed metrics or eventual outcomes.
 
-When the final agent crashes with `FileNotFoundError`, the coach checks the earlier agents' tool outputs and the resulting filesystem. If no agent ever saved `X_test.pkl`, blame traces to whichever agent's earlier action that should have created it—not the final agent's action that correctly tried to load it.
+When the final agent crashes with `FileNotFoundError`, the coach checks the earlier agents' tool outputs and the resulting filesystem. If no agent ever saved `X_test.pkl`, blame traces to whichever agent's earlier action should have created it—not the final agent's action that correctly tried to load it.
 
 We call the overall approach **MAPPA**: training **M**ulti**A**gent systems with **P**er-action **P**rocess rewards from **A**I feedback.
 
@@ -211,7 +211,7 @@ Simple averaging across metrics can't catch this. The coach synthesizes them in 
 
 ### Results
 
-We train for 21 epochs on 64 tasks and evaluate 4 trials on 6 held-out tasks and reports the average:
+We train for 21 epochs on 64 tasks and evaluate 4 trials on 6 held-out tasks and report the average:
 
 | Metric | Before | After | Change |
 |--------|--------|-------|--------|
@@ -259,7 +259,7 @@ Promising directions:
 - **Agent-as-a-coach**: The coach could become a full agent—using tools to compute statistics across training history, run code to verify correctness, inspect intermediate artifacts. It could even plan strategic training with short-term and long-term goals.
 - **Reward backpropagation**: Trace backward from outcomes, attribute credit or blame at each step, pass the residual to the previous agent—like gradient backprop through layers.
 
-We are entering an era where AI systems increasingly involve multiple agents working together. Figuring out how to train and evaluate these systems is becoming critical. Our approach-MAPPA-outlined in this blog could be the first step toward that direction.
+We are entering an era where AI systems increasingly involve multiple agents working together. Figuring out how to train and evaluate these systems is becoming critical. Our approach—MAPPA—outlined in this blog could be a first step toward that direction.
 
 Define and train your own multiagent system @ [our repo](https://github.com/ltjed/multiagent-coaching)!
 
