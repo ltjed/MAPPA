@@ -115,7 +115,7 @@ code:not([class]) {
 
 Finetuning a single model on one capability often degrades others. Train extensively on one language, and performance on others may drop. This is catastrophic forgetting: all tasks compete for the same parameters. 
 
-Yeah, MoE architecture partially solves this by routing different inputs to different parameter subsets, creating more runway to scale (more training to be done without forgetting) in one, big model. Almost all frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5—all use MoE designs nowadays. 
+MoE architecture partially solves this by routing different inputs to different parameter subsets, creating more runway to scale (more training to be done without forgetting) in one, big model. Almost all frontier models—Gemini 2.5, Kimi K2, and Claude Opus 4.5—all use MoE designs nowadays. 
 
 Multiagent systems apply the same idea at the agent-level, each agent having its own weights to be finetuned separately. Thus, if coordinated right, # of agents could be the next dimension of scaling.
 
